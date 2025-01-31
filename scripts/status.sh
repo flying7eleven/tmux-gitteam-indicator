@@ -1,5 +1,18 @@
 #!/usr/bin/env bash
 
+# get the configured version of a setting or its default value
+get_tmux_option() {
+  local option=$1
+  local default_value=$2
+  local option_value=$(tmux show-option -gqv "$option")
+  if [ -z "$option_value" ]; then
+    echo "$default_value"
+  else
+    echo "$option_value"
+  fi
+}
+
+# check if git team is enabled or not
 is_git_team_enabled() {
   local git_team_status=$(git team status 2>&1)
   if [[ "$git_team_status" == *"disabled"* ]]; then
@@ -9,14 +22,25 @@ is_git_team_enabled() {
   fi
 }
 
+# define the default values for those settings
+gitteam_status_indicator_color_enabled_default="#00ff00"
+gitteam_status_indicator_color_disabled_default="#ff0000"
+gitteam_status_indicator_icon_default=""
+gitteam_status_section_separator_icon_default=" "
+
+# determine if a custom value was set and use it if it is so; otherwise switch to the default
+gitteam_status_indicator_color_enabled=$(get_tmux_option "@gitteam_status_indicator_color_enabled" "$gitteam_status_indicator_color_enabled_default")
+gitteam_status_indicator_color_disabled=$(get_tmux_option "@gitteam_status_indicator_color_disabled" "$gitteam_status_indicator_color_disabled_default")
+gitteam_status_indicator_icon=$(get_tmux_option "@gitteam_status_indicator_icon" "$gitteam_status_indicator_icon_default")
+gitteam_status_section_separator_icon=$(get_tmux_option "@gitteam_status_section_separator_icon" "$gitteam_status_section_separator_icon_default")
 
 status=$(is_git_team_enabled)
 if [[ "$status" -eq 1 ]]; then
-  color_fmt="#[fg=#{@thm_green}]#[fg=#11111b,bg=#{@thm_green}]"
+  color_fmt="#[fg=$gitteam_status_indicator_color_enabled]$gitteam_status_section_separator_icon#[fg=#11111b,bg=$gitteam_status_indicator_color_enabled]$gitteam_status_indicator_icon"
   num_co_authors=$(git team status | grep "─" -c)
   status_text="enabled ($num_co_authors co-authors) "
 else
-  color_fmt="#[fg=#{@thm_red}]#[fg=#11111b,bg=#{@thm_red}]"
+  color_fmt="#[fg=$gitteam_status_indicator_color_disabled]$gitteam_status_section_separator_icon#[fg=#11111b,bg=$gitteam_status_indicator_color_disabled]$gitteam_status_indicator_icon"
   status_text="disabled "
 fi
 
