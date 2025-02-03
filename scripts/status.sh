@@ -22,6 +22,11 @@ is_git_team_enabled() {
   fi
 }
 
+# return the number of co authors in the current repositoy
+get_number_of_co_authors() {
+  echo $(git team status | grep "─" -c)
+}
+
 # define the default values for those settings
 gitteam_status_indicator_color_enabled_default="#00ff00"
 gitteam_status_indicator_color_disabled_default="#ff0000"
@@ -37,7 +42,7 @@ gitteam_status_section_separator_icon=$(get_tmux_option "@gitteam_status_section
 status=$(is_git_team_enabled)
 if [[ "$status" -eq 1 ]]; then
   color_fmt="#[fg=$gitteam_status_indicator_color_enabled]$gitteam_status_section_separator_icon#[fg=#11111b,bg=$gitteam_status_indicator_color_enabled]$gitteam_status_indicator_icon"
-  num_co_authors=$(git team status | grep "─" -c)
+  num_co_authors=$(get_number_of_co_authors)
   status_text="enabled ($num_co_authors co-authors) "
 else
   color_fmt="#[fg=$gitteam_status_indicator_color_disabled]$gitteam_status_section_separator_icon#[fg=#11111b,bg=$gitteam_status_indicator_color_disabled]$gitteam_status_indicator_icon"
