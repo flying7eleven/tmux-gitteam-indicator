@@ -43,7 +43,11 @@ status=$(is_git_team_enabled)
 if [[ "$status" -eq 1 ]]; then
   color_fmt="#[fg=$gitteam_status_indicator_color_enabled]$gitteam_status_section_separator_icon#[fg=#11111b,bg=$gitteam_status_indicator_color_enabled]$gitteam_status_indicator_icon"
   num_co_authors=$(get_number_of_co_authors)
-  status_text="enabled ($num_co_authors co-authors) "
+  if [[ $num_co_authors -eq 1 ]]; then
+    status_text="enabled ($num_co_authors co-author) "
+  else
+    status_text="enabled ($num_co_authors co-authors) "
+  fi
 else
   color_fmt="#[fg=$gitteam_status_indicator_color_disabled]$gitteam_status_section_separator_icon#[fg=#11111b,bg=$gitteam_status_indicator_color_disabled]$gitteam_status_indicator_icon"
   status_text="disabled "
