@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
 
+# check if git-team is available or not
+is_git_team_available() {
+  git team > /dev/null 2>&1
+  if [[ $? -eq 0 ]] then
+    echo 1
+  else
+    echo 0
+  fi
+}
+
 # get the configured version of a setting or its default value
 get_tmux_option() {
   local option=$1
@@ -38,6 +48,12 @@ gitteam_status_indicator_color_enabled=$(get_tmux_option "@gitteam_status_indica
 gitteam_status_indicator_color_disabled=$(get_tmux_option "@gitteam_status_indicator_color_disabled" "$gitteam_status_indicator_color_disabled_default")
 gitteam_status_indicator_icon=$(get_tmux_option "@gitteam_status_indicator_icon" "$gitteam_status_indicator_icon_default")
 gitteam_status_section_separator_icon=$(get_tmux_option "@gitteam_status_section_separator_icon" "$gitteam_status_section_separator_icon_default")
+
+status=$(is_git_team_available)
+if [[ "$status" -eq 0 ]]; then
+  echo "$color_fmt git-team not available"
+  exit 0
+fi
 
 status=$(is_git_team_enabled)
 if [[ "$status" -eq 1 ]]; then
