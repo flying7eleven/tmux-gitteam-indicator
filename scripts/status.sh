@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
 
+# check if the current directory is a git repository
+is_git_repository() {
+  cd $(tmux display-message -pF "#{pane_current_path}")
+  if git rev-parse --is-inside-work-tree 2>&1 | grep -q 'true'; then
+    echo 1
+  else
+    echo 0
+  fi
+}
+
 # check if git-team is available or not
 is_git_team_available() {
   git team > /dev/null 2>&1
@@ -48,6 +58,11 @@ gitteam_status_indicator_color_enabled=$(get_tmux_option "@gitteam_status_indica
 gitteam_status_indicator_color_disabled=$(get_tmux_option "@gitteam_status_indicator_color_disabled" "$gitteam_status_indicator_color_disabled_default")
 gitteam_status_indicator_icon=$(get_tmux_option "@gitteam_status_indicator_icon" "$gitteam_status_indicator_icon_default")
 gitteam_status_section_separator_icon=$(get_tmux_option "@gitteam_status_section_separator_icon" "$gitteam_status_section_separator_icon_default")
+
+status=$(is_git_repository)
+if [[ "$status" -eq 0 ]]; then
+  exit 0
+fi
 
 status=$(is_git_team_available)
 if [[ "$status" -eq 0 ]]; then
